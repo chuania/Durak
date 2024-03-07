@@ -1,21 +1,8 @@
+"""
+Реализация игры “Дурак”
+"""
+
 from deck_total import Card, Deck
-
-
-"""
-создадим имитацию ходов в “Дурака без козырей”:
-
-1. Создайте колоду из 52 карт. Перемешайте ее.
-2. Первый игрок берет сверху 10 карт
-3. Второй игрок берет сверху 10 карт.
-4. Игрок-1 ходит:
-    4.1. игрок-1 выкладывает самую маленькую карту по значению
-    4.2. игрок-2 пытается бить карту, если у него есть такая же масть, но значением больше.
-    4.3. Если игрок-2 не может побить карту, то он проигрывает/забирает себе(см. пункт 7)
-    4.4. Если игрок-2 бьет карту, то игрок-1 может подкинуть карту любого значения, которое есть на столе.
-5. Если Игрок-2 отбился, то Игрок-1 и Игрок-2 меняются местами. Игрок-2 ходит, Игрок-1 отбивается.    
-6. Выведите в консоль максимально наглядную визуализацию данных ходов.
-7* Реализовать возможность добрать карты из колоды после того, как один из игроков отбился/взял в руку
-"""
 
 
 MAX_CARDS = 10
@@ -45,8 +32,7 @@ class Hand:
         self.index += 1
         if self.index < len(self.cards):
             return self.cards[self.index]
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class Game:
@@ -62,7 +48,7 @@ class Game:
             forward_player.cards.index(min(forward_player.cards))
         )
 
-    def defend(forward_card: Card, player: Hand):  # -> Card or None
+    def defend(forward_card: Card, player: Hand):
         """Другой игрок защищается.
         forward_card - карта атакующего
         player - рука отбивающегося"""
@@ -74,14 +60,16 @@ class Game:
 
         if res:
             return player.cards.pop(player.cards.index(min(res)))
+        return None
 
-    def add_card(table: list, forward_player: Hand):  # -> Card or None
+    def add_card(table: list, forward_player: Hand):
         """Атакущюий игрок подкидыает карты с одинаковым значением"""
         cards_values = [card.value for card in table]
         res = [card for card in forward_player if card.value in cards_values]
 
         if res:
             return forward_player.cards.pop(forward_player.cards.index(min(res)))
+        return None
 
     def take(player: Hand, deck: Deck) -> None:
         """Игрок берёт необходимое кол-во карт из колоды"""
@@ -91,7 +79,12 @@ class Game:
             player.cards += deck.draw(max_num_of_cards)
 
     def game(hand_1: Hand, hand_2: Hand) -> bool:
-        """Реализация игры. Первый ход за первой рукой"""
+        """Реализация игры. Первый ход за первой рукой.
+        Если защищающийся игрок не отбивается, то атакующий подкидывает все оставшиеся карты
+        с одинаковым значением, защищающийся забирает все карты, рука не меняется.
+        Если защищающийся игрок отбился, то атакующий подбрасывает ему карты
+        с одинаковым значением, если имеет такие, если таких нет,
+        то у нас Бито, атакующий и защищающийся игроки меняются местами."""
 
         table = []  # Игровой стол
         change = False  # Флаг смены руки
@@ -106,8 +99,6 @@ class Game:
             print(f"Отбивается {hand_2.name} {defend_card}")
             table.append(defend_card)
         else:
-            """Если защищающийся игрок не отбивается, то атакующий подкидывает все оставшиеся карты
-            с одинаковым значением, защищающийся забирает все карты, рука не меняется"""
             add_card = Game.add_card(table, hand_1)
             while add_card:
                 print(f"{hand_1.name} подкидывает карту {add_card}")
@@ -119,22 +110,15 @@ class Game:
             return change
 
         while has_card:
-            """Если защищающийся игрок отбился, то атакующий подбрасывает ему карты
-            с одинаковым значением, если имеет такие, если таких нет,
-            то у нас Бито, атакующий и защищающийся игроки меняются местами"""
             add_card = Game.add_card(table, hand_1)
             if add_card and hand_2.cards:
                 table.append(add_card)
                 print(f"{hand_1.name} подкидывает карту {add_card}")
                 defend_card = Game.defend(add_card, hand_2)
                 if defend_card:
-                    """Защищающийся игрок отбивается и цикл начинается снова"""
                     table.append(defend_card)
                     print(f"{hand_2.name} отбивается {defend_card}")
                 else:
-                    """Если защищающийся игрок не отбивается, то атакующий подкидывает все оставшиеся карты
-                    с одинаковым значением, защищающийся забирает все карты, рука не меняется
-                    """
                     print(f"{hand_2.name} не может отбиться")
                     add_card = Game.add_card(table, hand_1)
                     while add_card:
@@ -154,32 +138,31 @@ class Game:
                 return change
 
 
-deck = Deck()
-deck.shuffle()
-# print(deck)
+game_deck = Deck()
+game_deck.shuffle()
 
-hand_1 = Hand(deck, "Asia")
-hand_2 = Hand(deck, "Vania")
-print(hand_1)
-print(hand_2)
-print(deck)
+game_hand_1 = Hand(game_deck, "Asia")
+game_hand_2 = Hand(game_deck, "Vania")
+print(game_hand_1)
+print(game_hand_2)
+print(game_deck)
 
-card_game = Game(hand_1, hand_2)
+card_game = Game(game_hand_1, game_hand_2)
 
 while (
-    hand_1.cards and hand_2.cards
+    game_hand_1.cards and game_hand_2.cards
 ):  # Пока в обеих рукахесть карты, то игра продолжается
-    game = Game.game(hand_1, hand_2)
-    print(hand_1)
-    print(hand_2)
-    Game.take(hand_1, deck)
-    Game.take(hand_2, deck)
-    print(hand_1)
-    print(hand_2)
-    if game:
-        hand_1, hand_2 = hand_2, hand_1
+    GAME = Game.game(game_hand_1, game_hand_2)
+    print(game_hand_1)
+    print(game_hand_2)
+    Game.take(game_hand_1, game_deck)
+    Game.take(game_hand_2, game_deck)
+    print(game_hand_1)
+    print(game_hand_2)
+    if GAME:
+        game_hand_1, game_hand_2 = game_hand_2, game_hand_1
 
-if hand_1:
-    print(f"Победил игрок {hand_1.name}")
+if game_hand_1:
+    print(f"Победил игрок {game_hand_1.name}")
 else:
-    print(f"Победил игрок {hand_2.name}")
+    print(f"Победил игрок {game_hand_2.name}")

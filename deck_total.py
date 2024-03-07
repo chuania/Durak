@@ -1,7 +1,11 @@
+"""
+Создание модуля колоды для игры в дурака
+"""
+
 import random
 
 
-# Начнем с создания карты
+# Cоздание карт
 # ♥ ♦ ♣ ♠
 VALUES = ("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
 SUITS = ("Spades", "Clubs", "Diamonds", "Hearts")
@@ -49,7 +53,7 @@ class Card:
         return self.less(other)
 
 
-# Теперь создадим колоду из 52-ух карт и реализуем все методы
+# Создание колоды и методов
 
 
 class Deck:
@@ -61,15 +65,14 @@ class Deck:
 
     def show(self):
         """Отображает все карты колоды в формате:deck[12]: 3♥, 4♦, A♣, …
-        где 12 - текущее кол-во карт в колоде."""
+        где 12 - текущее кол-во карт в колоде"""
         return (
             f'desk[{len(self.cards)}]: {", ".join([str(card) for card in self.cards])}'
         )
 
     def draw(self, x: int):
-        """Возвращает x первых карт из колоды в виде списка,
-        эти карты убираются из колоды. Уточнение: первую карту в списке считаем верхней картой колоды
-        """
+        """Возвращает x первых карт из колоды в виде списка, эти карты убираются из колоды.
+        Уточнение: первую карту в списке считаем верхней картой колоды"""
         draw_cards = self.cards[:x]
         self.cards = self.cards[x:]
         return draw_cards
@@ -94,36 +97,4 @@ class Deck:
         self.index += 1
         if self.index < len(self.cards):
             return self.cards[self.index]
-        else:
-            raise StopIteration
-
-
-# deck = Deck()
-# # Задачи - реализовать нативную работу с объектами:
-# # 1. Вывод колоды в терминал:
-# print(deck)  # вместо print(deck.show())
-
-# deck.shuffle()
-# print(deck)
-
-# card1, card2 = deck.draw(2)
-# # # 2. Вывод карты в терминал:
-# print(f'{card1 = }')  # вместо print(card1.to_str())
-# print(f'{card2 = }')
-
-# #
-# # # 3. Сравнение карт:
-# if card1 > card2:
-#     print(f"{card1} больше {card2}")
-
-# if card1 < card2:
-#     print(f"{card1} меньше {card2}")
-
-# # Это на следующее занятие.
-# # 4. Итерация по колоде:
-# for it_card in deck[:5]:
-#     print(it_card, end=', ')
-# print()
-# # 5. Просмотр карты в колоде по ее индексу:
-# # __getitem__(self, index):
-# print('Шестая карта:', deck[5])
+        raise StopIteration
